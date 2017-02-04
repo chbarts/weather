@@ -21,8 +21,8 @@ void set_statusbar(char *type, char *message)
 
 void on_button1_clicked(void)
 {
-   int len;
-   char *txt, ftext[BUFSIZ];
+   int len, http_len;
+   char *txt, *ind, ftext[BUFSIZ], http_stuff[BUFSIZ], host[BUFSIZ];
    GtkTextBuffer *buf;
    GtkTextIter iter;
    GError *error = NULL;
@@ -34,6 +34,11 @@ void on_button1_clicked(void)
    client = g_socket_client_new();
 
    txt = gtk_entry_get_text(g_entry1);
+   strncpy(host, txt, BUFSIZ);
+
+   if (ind = strchr(host, ':')) {
+      *ind = '\0';
+   }
 
    connection = g_socket_client_connect_to_host(client, txt, 80, NULL, &error);
    if (error) {
@@ -48,10 +53,9 @@ void on_button1_clicked(void)
    istream = g_io_stream_get_input_stream(G_IO_STREAM(connection));
    ostream = g_io_stream_get_output_stream(G_IO_STREAM(connection));
 
-#define HTTP_STUFF "GET / HTTP/1.1\r\nConnection: close\r\n\r\n"
-#define HTTP_LEN   (sizeof(HTTP_STUFF)-1)
+   http_len = snprintf(http_stuff, BUFSIZ, "GET / HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", host);
    error = NULL;
-   if ((len = g_output_stream_write(ostream, HTTP_STUFF, HTTP_LEN, NULL, &error)) != HTTP_LEN) {
+   if ((len = g_output_stream_write(ostream, http_stuff, http_len, NULL, &error)) != HTTP_LEN) {
       if (error) {
          snprintf(ftext, BUFSIZ, "error: couldn't write to %s: %s", txt, error->message);
          set_statusbar("error", ftext);
@@ -59,7 +63,7 @@ void on_button1_clicked(void)
          g_object_unref(connection);
          return;
       } else {
-         while ((len = g_output_stream_write(ostream, HTTP_STUFF[len], HTTP_LEN - len, NULL, &error)) != 0) {
+         while ((len = g_output_stream_write(ostream, http_stuff[len], http_len - len, NULL, &error)) != 0) {
             if (error) {
                snprintf(ftext, BUFSIZ, "error: couldn't write to %s: %s", txt, error->message);
                set_statusbar("error", ftext);
