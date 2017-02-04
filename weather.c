@@ -21,6 +21,7 @@ void on_button1_clicked(void)
 
    txt = gtk_entry_get_text(g_entry1);
    buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(g_textview1));
+   gtk_text_buffer_set_text(buf, "", -1);
    gtk_text_buffer_get_start_iter(buf, &iter);
    if ((inf = fopen(txt, "rb")) == NULL) {
       snprintf(ftext, BUFSIZ, "error: couldn't open %s: %s", txt, strerror(errno));
