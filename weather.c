@@ -4,11 +4,19 @@
 
 #include <errno.h>
 
-GtkWidget *g_entry1, *g_textview1;
+GtkWidget *g_entry1, *g_textview1, *g_statusbar1;
 
 void on_window1_destroy(void)
 {
    gtk_main_quit();
+}
+
+void set_statusbar(char *type, char *message)
+{
+   guint cid;
+   g_object_set_data(G_OBJECT(g_statusbar1), type, (gpointer) message);
+   cid = gtk_statusbar_get_context_id(GTK_STATUSBAR(g_statusbar1), type);
+   gtk_statusbar_push(GTK_STATUSBAR(g_statusbar1), cid, message);
 }
 
 void on_button1_clicked(void)
@@ -25,7 +33,7 @@ void on_button1_clicked(void)
    gtk_text_buffer_get_start_iter(buf, &iter);
    if ((inf = fopen(txt, "rb")) == NULL) {
       snprintf(ftext, BUFSIZ, "error: couldn't open %s: %s", txt, strerror(errno));
-      gtk_text_buffer_set_text(buf, ftext, -1);
+      set_statusbar("error", ftext);
       return;
    }
 
@@ -34,6 +42,7 @@ void on_button1_clicked(void)
    }
 
    fclose(inf);
+   set_statusbar("info", txt);
 }
 
 int main(int argc, char *argv[])
@@ -51,6 +60,7 @@ int main(int argc, char *argv[])
 
    g_entry1 = GTK_WIDGET(gtk_builder_get_object(builder, "entry1"));
    g_textview1 = GTK_WIDGET(gtk_builder_get_object(builder, "textview1"));
+   g_statusbar1 = GTK_WIDGET(gtk_builder_get_object(builder, "statusbar1"));
  
    g_object_unref(builder);
  
