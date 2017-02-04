@@ -23,25 +23,72 @@ void on_button1_clicked(void)
 {
    int len;
    char *txt, ftext[BUFSIZ];
-   FILE *inf;
    GtkTextBuffer *buf;
    GtkTextIter iter;
+   GError *error = NULL;
+   GSocketConnection *connection;
+   GSocketClient *client;
+   GInputStream *istream;
+   GOutputStream *ostream;
+
+   client = g_socket_client_new();
 
    txt = gtk_entry_get_text(g_entry1);
-   buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(g_textview1));
-   gtk_text_buffer_set_text(buf, "", -1);
-   gtk_text_buffer_get_start_iter(buf, &iter);
-   if ((inf = fopen(txt, "rb")) == NULL) {
-      snprintf(ftext, BUFSIZ, "error: couldn't open %s: %s", txt, strerror(errno));
+
+   connection = g_socket_client_connect_to_host(client, txt, 80, NULL, &error);
+   if (error) {
+      snprintf(ftext, BUFSIZ, "error: couldn't open connection to %s: %s", txt, error->message);
       set_statusbar("error", ftext);
+      g_error_free(error);
       return;
    }
 
-   while ((len = (int) fread(ftext, 1, BUFSIZ, inf)) > 0) {
-      gtk_text_buffer_insert(buf, &iter, ftext, len);
+   g_tcp_connection_set_graceful_disconnect(G_TCP_CONNECTION(connection), TRUE);
+
+   istream = g_io_stream_get_input_stream(G_IO_STREAM(connection));
+   ostream = g_io_stream_get_output_stream(G_IO_STREAM(connection));
+
+#define HTTP_STUFF "GET / HTTP/1.1\r\nConnection: close\r\n\r\n"
+#define HTTP_LEN   (sizeof(HTTP_STUFF)-1)
+   error = NULL;
+   if ((len = g_output_stream_write(ostream, HTTP_STUFF, HTTP_LEN, NULL, &error)) != HTTP_LEN) {
+      if (error) {
+         snprintf(ftext, BUFSIZ, "error: couldn't write to %s: %s", txt, error->message);
+         set_statusbar("error", ftext);
+         g_error_free(error);
+         g_object_unref(connection);
+         return;
+      } else {
+         while ((len = g_output_stream_write(ostream, HTTP_STUFF[len], HTTP_LEN - len, NULL, &error)) != 0) {
+            if (error) {
+               snprintf(ftext, BUFSIZ, "error: couldn't write to %s: %s", txt, error->message);
+               set_statusbar("error", ftext);
+               g_error_free(error);
+               g_object_unref(connection);
+               return;
+            }
+         }
+      }
+   }
+   
+   buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(g_textview1));
+   gtk_text_buffer_set_text(buf, "", -1);
+   gtk_text_buffer_get_start_iter(buf, &iter);
+
+   error = NULL;
+   while ((len = (int) g_input_stream_read(istream, ftext, BUFSIZ, NULL, &error)) > 0) {
+      if (error) {
+         snprintf(ftext, BUFSIZ, "error: couldn't read from %s: %s", txt, error->message);
+         set_statusbar("error", ftext);
+         g_error_free(error);
+         g_object_unref(connection);
+         return;
+      } else {
+         gtk_text_buffer_insert(buf, &iter, ftext, len);
+      }
    }
 
-   fclose(inf);
+   g_object_unref(connection);
    set_statusbar("info", txt);
 }
 
