@@ -1,4 +1,8 @@
+#include <stdio.h>
+#include <string.h>
 #include <gtk/gtk.h>
+
+#include <errno.h>
 
 GtkWidget *g_entry1, *g_textview1;
 
@@ -9,13 +13,26 @@ void on_window1_destroy(void)
 
 void on_button1_clicked(void)
 {
-   char *txt;
+   int len;
+   char *txt, ftext[BUFSIZ];
+   FILE *inf;
    GtkTextBuffer *buf;
+   GtkTextIter iter;
 
    txt = gtk_entry_get_text(g_entry1);
    buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(g_textview1));
-   gtk_text_buffer_set_text(buf, txt, -1);
-//   gtk_text_view_set_buffer(g_textview1, buf);
+   gtk_text_buffer_get_start_iter(buf, &iter);
+   if ((inf = fopen(txt, "rb")) == NULL) {
+      snprintf(ftext, BUFSIZ, "error: couldn't open %s: %s", txt, strerror(errno));
+      gtk_text_buffer_set_text(buf, ftext, -1);
+      return;
+   }
+
+   while ((len = (int) fread(ftext, 1, BUFSIZ, inf)) > 0) {
+      gtk_text_buffer_insert(buf, &iter, ftxt, len);
+   }
+
+   fclose(inf);
 }
 
 int main(int argc, char *argv[])
