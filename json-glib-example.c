@@ -19,9 +19,9 @@ int main(int argc, char *argv[])
    parser = json_parser_new();
 
    error = NULL;
-   json_parser_load_from_file(parser, argv[1], &error);
+   json_parser_load_from_file(parser, argv[2], &error);
    if (error) {
-      g_print("Unable to parse file '%s': %s\n", argv[1], error->message);
+      g_print("Unable to parse file '%s': %s\n", argv[2], error->message);
       g_error_free(error);
       g_object_unref(parser);
       exit(EXIT_FAILURE);
@@ -29,9 +29,9 @@ int main(int argc, char *argv[])
 
    error = NULL;
    path = json_path_new();
-   json_path_compile(path, argv[2], &error);
+   json_path_compile(path, argv[1], &error);
    if (error) {
-      g_print("Unable to parse path '%s': %s\n", argv[2], error->message);
+      g_print("Unable to parse path '%s': %s\n", argv[1], error->message);
       g_error_free(error);
       g_object_unref(parser);
       exit(EXIT_FAILURE);
