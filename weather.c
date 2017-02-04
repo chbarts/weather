@@ -55,7 +55,7 @@ void on_button1_clicked(void)
 
    http_len = snprintf(http_stuff, BUFSIZ, "GET / HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", host);
    error = NULL;
-   if ((len = g_output_stream_write(ostream, http_stuff, http_len, NULL, &error)) != HTTP_LEN) {
+   if ((len = g_output_stream_write(ostream, http_stuff, http_len, NULL, &error)) != http_len) {
       if (error) {
          snprintf(ftext, BUFSIZ, "error: couldn't write to %s: %s", txt, error->message);
          set_statusbar("error", ftext);
@@ -63,7 +63,7 @@ void on_button1_clicked(void)
          g_object_unref(connection);
          return;
       } else {
-         while ((len = g_output_stream_write(ostream, http_stuff[len], http_len - len, NULL, &error)) != 0) {
+         while ((len = g_output_stream_write(ostream, http_stuff + len, http_len - len, NULL, &error)) != 0) {
             if (error) {
                snprintf(ftext, BUFSIZ, "error: couldn't write to %s: %s", txt, error->message);
                set_statusbar("error", ftext);
