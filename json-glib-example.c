@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
    g_print("%s\n", str);
 
    g_free(str);
+   json_node_unref(result);
    g_object_unref(parser);
    exit(EXIT_SUCCESS);
 }
