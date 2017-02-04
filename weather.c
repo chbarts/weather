@@ -29,7 +29,7 @@ void on_button1_clicked(void)
    }
 
    while ((len = (int) fread(ftext, 1, BUFSIZ, inf)) > 0) {
-      gtk_text_buffer_insert(buf, &iter, ftxt, len);
+      gtk_text_buffer_insert(buf, &iter, ftext, len);
    }
 
    fclose(inf);
