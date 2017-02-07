@@ -4,25 +4,58 @@
 #include <glib/glib.h>
 #include <gio/gio.h>
 
+#include "beheader.h"
+
 static bool seen_hend = false;
 static int ncrs = 0, nnls = 0;
 
-void reset(GConverter *converter)
+static void g_beheader_iface_init          (GConverterIface *iface);
+
+struct _GBeheader
+{
+  GObject parent_instance;
+};
+
+G_DEFINE_TYPE_WITH_CODE (GBeheader, g_beheader, G_TYPE_OBJECT,
+			 G_IMPLEMENT_INTERFACE (G_TYPE_CONVERTER,
+						g_beheader_iface_init))
+
+static void
+g_beheader_class_init (GBeheaderClass *klass)
+{
+}
+
+static void
+g_beheader_init (GBeheader *local)
+{
+}
+
+GConverter *
+g_beheader_new (void)
+{
+  GConverter *conv;
+
+  conv = g_object_new (G_TYPE_BEHEADER, NULL);
+
+  return conv;
+}
+
+static void g_beheader_reset(GConverter *converter)
 {
    seen_hend = false;
    ncrs = 0;
    nnls = 0;
 }
 
-GConverterResult beheader(GConverter *converter,
-                          const void *inbuf,
-                          gsize       inbuf_size,
-                          void       *outbuf,
-                          gsize       outbuf_size,
-                          GConverterFlags flags,
-                          gsize      *bytes_read,
-                          gsize      *bytes_written,
-                          GError    **error)
+static GConverterResult g_beheader_behead(GConverter *converter,
+                                          const void *inbuf,
+                                          gsize       inbuf_size,
+                                          void       *outbuf,
+                                          gsize       outbuf_size,
+                                          GConverterFlags flags,
+                                          gsize      *bytes_read,
+                                          gsize      *bytes_written,
+                                          GError    **error)
 {
    const guint8 *in, *in_end;
    gsize txfersize, remsize;
@@ -77,4 +110,11 @@ GConverterResult beheader(GConverter *converter,
    }
 
    return G_CONVERTER_CONVERTED;
+}
+
+static void
+g_beheader_iface_init (GConverterIface *iface)
+{
+  iface->convert = g_beheader_behead;
+  iface->reset = g_beheader_reset;
 }

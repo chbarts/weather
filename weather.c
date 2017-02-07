@@ -5,6 +5,8 @@
 
 #include <errno.h>
 
+#include "beheader.h"
+
 GtkWidget *g_entry1, *g_textview1, *g_statusbar1;
 
 void on_window1_destroy(void)
