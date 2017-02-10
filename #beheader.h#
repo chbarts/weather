@@ -27,8 +27,4 @@ GConverter *g_beheader_new      (void);
 #define G_IS_BEHEADER_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), G_TYPE_BEHEADER))
 #define G_BEHEADER_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), G_TYPE_BEHEADER, GBeheaderClass))
 
-G_DEFINE_TYPE_WITH_CODE (GBeheader, g_beheader, G_TYPE_OBJECT,
-			 G_IMPLEMENT_INTERFACE (G_TYPE_CONVERTER,
-						g_beheader_iface_init))
-
 #endif
