@@ -1,7 +1,7 @@
 #ifndef BEHEADER_H
 #define BEHEADER_H
 
-#include <glib/glib.h>
+#include <glib.h>
 #include <gio/gio.h>
 
 struct _GBeheaderClass
