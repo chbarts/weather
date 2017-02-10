@@ -11,7 +11,9 @@ struct _GBeheaderClass
 
 struct _GBeheader
 {
-  GObject parent_instance;
+   GObject parent_instance;
+   bool seen_hend;
+   int ncrs, nnls;
 };
 
 typedef struct _GBeheader       GBeheader;

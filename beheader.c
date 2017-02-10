@@ -1,12 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <stdbool.h>
 
 #include "beheader.h"
-
-static bool seen_hend = false;
-static int ncrs = 0, nnls = 0;
 
 static void g_beheader_iface_init          (GConverterIface *iface);
 
@@ -22,6 +18,9 @@ g_beheader_class_init (GBeheaderClass *klass)
 static void
 g_beheader_init (GBeheader *local)
 {
+   local->seen_hend = false;
+   local->nnls = 0;
+   local->ncrs = 0;
 }
 
 GConverter *
@@ -36,10 +35,9 @@ g_beheader_new (void)
 
 static void g_beheader_reset(GConverter *converter)
 {
-   seen_hend = false;
-   ncrs = 0;
-   nnls = 0;
-   fprintf(stderr, "Reset\n");
+   converter->seen_hend = false;
+   converter->ncrs = 0;
+   converter->nnls = 0;
 }
 
 static GConverterResult g_beheader_behead(GConverter *converter,
@@ -56,7 +54,7 @@ static GConverterResult g_beheader_behead(GConverter *converter,
    gsize txfersize, remsize;
    guint8 v, *out;
 
-   if (seen_hend) {
+   if (converter->seen_hend) {
       txfersize = ((inbuf_size < outbuf_size) ? inbuf_size : outbuf_size);
       memcpy(outbuf, inbuf, txfersize);
       *bytes_read = txfersize;
@@ -73,7 +71,7 @@ static GConverterResult g_beheader_behead(GConverter *converter,
    in_end = in + inbuf_size;
 
    while (in < in_end) {
-      if (seen_hend) {
+      if (converter->seen_hend) {
          remsize = in_end - in;
          txfersize = ((remsize < outbuf_size) ? remsize : outbuf_size);
          memcpy(outbuf, in, txfersize);
@@ -89,22 +87,21 @@ static GConverterResult g_beheader_behead(GConverter *converter,
       v = *in;
 
       if ('\r' == v) {
-         ncrs++;
+         converter->ncrs++;
       } else if ('\n' == v) {
-         nnls++;
+         converter->nnls++;
       } else {
-         ncrs = 0;
-         nnls = 0;
+         converter->ncrs = 0;
+         converter->nnls = 0;
       }
 
       in++;
 
       if ((2 == ncrs) && (2 == nnls)) {
-         seen_hend = true;
+         converter->seen_hend = true;
       }
    }
 
-   fprintf(stderr, "Converter: ncrs = %d, nnls = %d\n", ncrs, nnls);
    return G_CONVERTER_CONVERTED;
 }
 
