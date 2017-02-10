@@ -35,9 +35,10 @@ g_beheader_new (void)
 
 static void g_beheader_reset(GConverter *converter)
 {
-   converter->seen_hend = false;
-   converter->ncrs = 0;
-   converter->nnls = 0;
+   GBeheader *self = (GBeheader*) converter;
+   self->seen_hend = false;
+   self->ncrs = 0;
+   self->nnls = 0;
 }
 
 static GConverterResult g_beheader_behead(GConverter *converter,
@@ -53,8 +54,9 @@ static GConverterResult g_beheader_behead(GConverter *converter,
    const guint8 *in, *in_end;
    gsize txfersize, remsize;
    guint8 v, *out;
+   GBeheader *self = (GBeheader*) converter;
 
-   if (converter->seen_hend) {
+   if (self->seen_hend) {
       txfersize = ((inbuf_size < outbuf_size) ? inbuf_size : outbuf_size);
       memcpy(outbuf, inbuf, txfersize);
       *bytes_read = txfersize;
@@ -71,7 +73,7 @@ static GConverterResult g_beheader_behead(GConverter *converter,
    in_end = in + inbuf_size;
 
    while (in < in_end) {
-      if (converter->seen_hend) {
+      if (self->seen_hend) {
          remsize = in_end - in;
          txfersize = ((remsize < outbuf_size) ? remsize : outbuf_size);
          memcpy(outbuf, in, txfersize);
@@ -87,18 +89,18 @@ static GConverterResult g_beheader_behead(GConverter *converter,
       v = *in;
 
       if ('\r' == v) {
-         converter->ncrs++;
+         self->ncrs++;
       } else if ('\n' == v) {
-         converter->nnls++;
+         self->nnls++;
       } else {
-         converter->ncrs = 0;
-         converter->nnls = 0;
+         self->ncrs = 0;
+         self->nnls = 0;
       }
 
       in++;
 
-      if ((2 == ncrs) && (2 == nnls)) {
-         converter->seen_hend = true;
+      if ((2 == self->ncrs) && (2 == self->nnls)) {
+         self->seen_hend = true;
       }
    }
 
