@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <glib/glib.h>
-#include <gio/gio.h>
 
 #include "beheader.h"
 

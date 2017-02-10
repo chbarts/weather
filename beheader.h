@@ -1,6 +1,9 @@
 #ifndef BEHEADER_H
 #define BEHEADER_H
 
+#include <glib/glib.h>
+#include <gio/gio.h>
+
 #define G_TYPE_BEHEADER         (g_beheader_get_type ())
 #define G_BEHEADER(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), G_TYPE_BEHEADER, GBeheader))
 #define G_BEHEADER_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), G_TYPE_BEHEADER, GBeheaderClass))
