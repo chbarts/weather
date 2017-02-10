@@ -4,15 +4,14 @@
 
 #include "beheader.h"
 
-G_DEFINE_TYPE_WITH_CODE (GBeheader, g_beheader, G_TYPE_OBJECT,
-			 G_IMPLEMENT_INTERFACE (G_TYPE_CONVERTER,
-						g_beheader_iface_init))
-
-
 static bool seen_hend = false;
 static int ncrs = 0, nnls = 0;
 
 static void g_beheader_iface_init          (GConverterIface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (GBeheader, g_beheader, G_TYPE_OBJECT,
+			 G_IMPLEMENT_INTERFACE (G_TYPE_CONVERTER,
+						g_beheader_iface_init))
 
 static void
 g_beheader_class_init (GBeheaderClass *klass)
