@@ -50,6 +50,7 @@ void on_button1_clicked(void)
       snprintf(ftext, BUFSIZ, "error: couldn't open connection to %s: %s", txt, error->message);
       set_statusbar("error", ftext);
       g_error_free(error);
+      g_object_unref(beheader);
       return;
    }
 
@@ -68,6 +69,7 @@ void on_button1_clicked(void)
          set_statusbar("error", ftext);
          g_error_free(error);
          g_object_unref(connection);
+         g_object_unref(beheader);
          return;
       } else {
          while ((len = g_output_stream_write(ostream, http_stuff + len, http_len - len, NULL, &error)) != 0) {
@@ -76,6 +78,7 @@ void on_button1_clicked(void)
                set_statusbar("error", ftext);
                g_error_free(error);
                g_object_unref(connection);
+               g_object_unref(beheader);
                return;
             }
          }
@@ -93,6 +96,7 @@ void on_button1_clicked(void)
          set_statusbar("error", ftext);
          g_error_free(error);
          g_object_unref(connection);
+         g_object_unref(beheader);
          return;
       } else {
          gtk_text_buffer_insert(buf, &iter, ftext, len);
