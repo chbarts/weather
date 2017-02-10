@@ -78,7 +78,7 @@ static GConverterResult g_beheader_behead(GConverter *converter,
          remsize = in_end - in;
          txfersize = ((remsize < outbuf_size) ? remsize : outbuf_size);
          memcpy(outbuf, in, txfersize);
-         *bytes_read = txfersize;
+         *bytes_read = (inbuf - in) + txfersize;
          *bytes_written = txfersize;
          if (flags & G_CONVERTER_INPUT_AT_END) {
             return G_CONVERTER_FINISHED;
@@ -105,6 +105,8 @@ static GConverterResult g_beheader_behead(GConverter *converter,
       }
    }
 
+   *bytes_read = inbuf_size;
+   *bytes_written = 0;
    return G_CONVERTER_CONVERTED;
 }
 
