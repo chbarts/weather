@@ -31,10 +31,12 @@ void on_button1_clicked(void)
    GError *error = NULL;
    GSocketConnection *connection;
    GSocketClient *client;
-   GInputStream *istream;
+   GInputStream *istream, *cistream;
    GOutputStream *ostream;
+   GConverter *beheader;
 
    client = g_socket_client_new();
+   beheader = g_beheader_new();
 
    txt = gtk_entry_get_text(g_entry1);
    strncpy(host, txt, BUFSIZ);
@@ -55,6 +57,8 @@ void on_button1_clicked(void)
 
    istream = g_io_stream_get_input_stream(G_IO_STREAM(connection));
    ostream = g_io_stream_get_output_stream(G_IO_STREAM(connection));
+
+   cistream = g_converter_input_stream_new(istream, beheader);
 
    http_len = snprintf(http_stuff, BUFSIZ, "GET / HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", host);
    error = NULL;
@@ -83,7 +87,7 @@ void on_button1_clicked(void)
    gtk_text_buffer_get_start_iter(buf, &iter);
 
    error = NULL;
-   while ((len = (int) g_input_stream_read(istream, ftext, BUFSIZ, NULL, &error)) > 0) {
+   while ((len = (int) g_input_stream_read(cistream, ftext, BUFSIZ, NULL, &error)) > 0) {
       if (error) {
          snprintf(ftext, BUFSIZ, "error: couldn't read from %s: %s", txt, error->message);
          set_statusbar("error", ftext);
@@ -96,6 +100,7 @@ void on_button1_clicked(void)
    }
 
    g_object_unref(connection);
+   g_object_unref(beheader);
    set_statusbar("info", txt);
 }
 
