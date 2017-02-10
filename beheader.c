@@ -29,6 +29,7 @@ g_beheader_new (void)
   GConverter *conv;
 
   conv = g_object_new (G_TYPE_BEHEADER, NULL);
+  g_beheader_init((GBeheader*)conv);
 
   return conv;
 }
