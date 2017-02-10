@@ -107,7 +107,11 @@ static GConverterResult g_beheader_behead(GConverter *converter,
 
    *bytes_read = inbuf_size;
    *bytes_written = 0;
-   return G_CONVERTER_CONVERTED;
+   if (flags & G_CONVERTER_INPUT_AT_END) {
+      return G_CONVERTER_FINISHED;
+   } else {
+      return G_CONVERTER_CONVERTED;
+   }
 }
 
 static void
