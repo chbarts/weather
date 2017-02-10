@@ -93,7 +93,7 @@ static GConverterResult g_beheader_behead(GConverter *converter,
          self->ncrs++;
       } else if ('\n' == v) {
          self->nnls++;
-      } else {
+      } else if ((self->ncrs < 2) || (self->nnls < 2)) {
          self->ncrs = 0;
          self->nnls = 0;
       }
