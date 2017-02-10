@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include <stdbool.h>
 
 #include "beheader.h"
@@ -38,6 +39,7 @@ static void g_beheader_reset(GConverter *converter)
    seen_hend = false;
    ncrs = 0;
    nnls = 0;
+   fprintf(stderr, "Reset\n");
 }
 
 static GConverterResult g_beheader_behead(GConverter *converter,
@@ -102,6 +104,7 @@ static GConverterResult g_beheader_behead(GConverter *converter,
       }
    }
 
+   fprintf(stderr, "Converter: ncrs = %d, nnls = %d\n", ncrs, nnls);
    return G_CONVERTER_CONVERTED;
 }
 
