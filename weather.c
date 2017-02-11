@@ -22,12 +22,50 @@ void set_statusbar(char *type, char *message)
    gtk_statusbar_push(GTK_STATUSBAR(g_statusbar1), cid, message);
 }
 
+void handle_json(GInputStream *istream, GError **error)
+{
+   JsonGenerator *generator;
+   JsonParser *parser;
+   GtkTextBuffer *buf;
+   GtkTextIter iter;
+   JsonNode *result;
+   JsonPath *path;
+   char *str;
+   
+   buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(g_textview1));
+   gtk_text_buffer_set_text(buf, "", -1);
+   gtk_text_buffer_get_start_iter(buf, &iter);
+
+   parser = json_parser_new();
+   if (!json_parser_load_from_stream(parser, istream, NULL, error)) {
+      g_object_unref(parser);
+      return;
+   }
+
+   *error = NULL;
+   path = json_path_new();
+   json_path_compile(path, "", error);
+   if (*error) {
+      g_object_unref(parser);
+      return;
+   }
+
+   result = json_path_match(path, json_parser_get_root(parser));
+   generator = json_generator_new();
+   json_generator_set_root(generator, result);
+   str = json_generator_to_data(generator, NULL);
+
+   gtk_text_buffer_insert(buf, &iter, str, strlen(str));
+
+   g_free(str);
+   json_node_unref(result);
+   g_object_unref(parser);
+}
+
 void on_button1_clicked(void)
 {
    int len, http_len;
    char *txt, *ind, ftext[BUFSIZ], http_stuff[BUFSIZ], host[BUFSIZ];
-   GtkTextBuffer *buf;
-   GtkTextIter iter;
    GError *error = NULL;
    GSocketConnection *connection;
    GSocketClient *client;
@@ -84,23 +122,16 @@ void on_button1_clicked(void)
          }
       }
    }
-   
-   buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(g_textview1));
-   gtk_text_buffer_set_text(buf, "", -1);
-   gtk_text_buffer_get_start_iter(buf, &iter);
 
    error = NULL;
-   while ((len = (int) g_input_stream_read(cistream, ftext, BUFSIZ, NULL, &error)) > 0) {
-      if (error) {
-         snprintf(ftext, BUFSIZ, "error: couldn't read from %s: %s", txt, error->message);
-         set_statusbar("error", ftext);
-         g_error_free(error);
-         g_object_unref(connection);
-         g_object_unref(beheader);
-         return;
-      } else {
-         gtk_text_buffer_insert(buf, &iter, ftext, len);
-      }
+   handle_json(cistream, &error);
+   if (error) {
+      snprintf(ftext, BUFSIZ, "error: couldn't read from %s: %s", txt, error->message);
+      set_statusbar("error", ftext);
+      g_error_free(error);
+      g_object_unref(connection);
+      g_object_unref(beheader);
+      return;
    }
 
    g_object_unref(connection);
