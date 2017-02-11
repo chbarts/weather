@@ -63,10 +63,6 @@ void handle_json(GInputStream *istream, GError **error)
 
    val = json_reader_get_int_value(reader);
 
-   snprintf(ftext, BUFSIZ, "Status: %d\n", val);
-
-   gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
-
    g_object_unref(reader);
    json_node_unref(result);
 
@@ -207,7 +203,7 @@ void on_button1_clicked(void)
    error = NULL;
    handle_json(cistream, &error);
    if (error) {
-      snprintf(ftext, BUFSIZ, "error: couldn't read from %s: %s", txt, error->message);
+      snprintf(ftext, BUFSIZ, "error: couldn't get weather for %s: %s", txt, error->message);
       set_statusbar("error", ftext);
       g_error_free(error);
       g_object_unref(connection);
