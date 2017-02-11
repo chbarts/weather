@@ -27,12 +27,14 @@ void set_statusbar(char *type, char *message)
 void handle_json(GInputStream *istream, GError **error)
 {
    JsonGenerator *generator;
+   JsonReader *reader;
    JsonParser *parser;
    GtkTextBuffer *buf;
    GtkTextIter iter;
    JsonNode *result;
    JsonPath *path;
-   char *str;
+   char *str, ftext[BUFSIZ];
+   int val;
    
    buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(g_textview1));
    gtk_text_buffer_set_text(buf, "", -1);
@@ -53,8 +55,19 @@ void handle_json(GInputStream *istream, GError **error)
    }
 
    result = json_path_match(path, json_parser_get_root(parser));
+   reader = json_reader_new(result);
+
+   json_reader_read_element(reader, 0);
+
+   val = json_reader_get_int_value(reader);
+
+   snprintf(ftext, BUFSIZ, "%d\n", val);
+
+   gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
+
    generator = json_generator_new();
    json_generator_set_root(generator, result);
+
    str = json_generator_to_data(generator, NULL);
 
    gtk_text_buffer_insert(buf, &iter, str, strlen(str));
