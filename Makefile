@@ -8,7 +8,7 @@ all: weather json-glib-example
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 weather: weather.o beheader.o
-	$(CC) weather.o beheader.o -o weather $(shell pkg-config --libs gtk+-3.0) -export-dynamic
+	$(CC) weather.o beheader.o -o weather $(shell pkg-config --libs gtk+-3.0 json-glib-1.0) -export-dynamic
 
 json-glib-example: json-glib-example.o
 	$(CC) json-glib-example.o -o json-glib-example $(shell pkg-config --libs gtk+-3.0 json-glib-1.0) -export-dynamic
