@@ -125,7 +125,7 @@ void handle_json(GInputStream *istream, GError **error)
    json_reader_read_element(reader, 0);
 
    temp = json_reader_get_double_value(reader);
-   snprintf(ftext, BUFSIZ, " %g°) ", temp);
+   snprintf(ftext, BUFSIZ, "%g°)", temp);
 
    gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
 
