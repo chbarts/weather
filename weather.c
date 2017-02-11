@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <gtk/gtk.h>
+#include <glib-object.h>
+#include <json-glib/json-glib.h>
 
 #include <errno.h>
 
