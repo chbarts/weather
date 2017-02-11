@@ -70,6 +70,11 @@ void handle_json(GInputStream *istream, GError **error)
    g_object_unref(reader);
    json_node_unref(result);
 
+   if (200 != val) {
+      g_set_error(error, 1, 1, "Server returned error code: %d", val);
+      return;
+   }
+
    *error = NULL;
    json_path_compile(path, ".name", error);
    if (*error) {
