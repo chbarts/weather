@@ -222,8 +222,9 @@ void handle_json(GInputStream *istream, GError **error)
 
 void on_button1_clicked(void)
 {
+   size_t i;
    int len, http_len;
-   char *txt, *ind, ftext[BUFSIZ], http_stuff[BUFSIZ], host[BUFSIZ], req[BUFSIZ];
+   char *txt, *ind, ftext[BUFSIZ], http_stuff[BUFSIZ], loc[BUFSIZ], req[BUFSIZ];
    GError *error = NULL;
    GSocketConnection *connection;
    GSocketClient *client;
@@ -235,10 +236,11 @@ void on_button1_clicked(void)
    beheader = g_beheader_new();
 
    txt = gtk_entry_get_text(g_entry1);
-   strncpy(host, txt, BUFSIZ);
+   strncpy(loc, txt, BUFSIZ);
 
-   if (ind = strchr(host, ':')) {
-      *ind = '\0';
+   for (i = 0; loc[i] != '\0'; i++) {
+      if (' ' == loc[i])
+         loc[i] = '+';
    }
 
    connection = g_socket_client_connect_to_host(client, "api.openweathermap.org", 80, NULL, &error);
@@ -257,7 +259,7 @@ void on_button1_clicked(void)
 
    cistream = g_converter_input_stream_new(istream, beheader);
 
-   snprintf(req, BUFSIZ, REQ, txt, API_KEY);
+   snprintf(req, BUFSIZ, REQ, loc, API_KEY);
    http_len = snprintf(http_stuff, BUFSIZ, "GET /%s HTTP/1.1\r\nHost: api.openweathermap.org\r\nConnection: close\r\n\r\n", req);
    error = NULL;
    if ((len = g_output_stream_write(ostream, http_stuff, http_len, NULL, &error)) != http_len) {
