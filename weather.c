@@ -5,6 +5,7 @@
 #include <glib-object.h>
 #include <json-glib/json-glib.h>
 
+#include <time.h>
 #include <errno.h>
 
 #include "beheader.h"
@@ -36,6 +37,7 @@ void handle_json(GInputStream *istream, GError **error)
    char ftext[BUFSIZ];
    gchar *str;
    double temp;
+   time_t time;
    int val;
    
    buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(g_textview1));
@@ -104,6 +106,86 @@ void handle_json(GInputStream *istream, GError **error)
 
    temp = json_reader_get_double_value(reader);
    snprintf(ftext, BUFSIZ, " temperature is: %g°F\n", temp);
+
+   gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
+
+   g_object_unref(reader);
+   json_node_unref(result);
+
+   *error = NULL;
+   json_path_compile(path, ".wind.speed", error);
+   if (*error) {
+      g_object_unref(parser);
+      return;
+   }
+
+   result = json_path_match(path, json_parser_get_root(parser));
+   reader = json_reader_new(result);
+
+   json_reader_read_element(reader, 0);
+
+   temp = json_reader_get_double_value(reader);
+   snprintf(ftext, BUFSIZ, "Wind speed is: %g mph, ", temp);
+
+   gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
+
+   g_object_unref(reader);
+   json_node_unref(result);
+
+   *error = NULL;
+   json_path_compile(path, ".wind.deg", error);
+   if (*error) {
+      g_object_unref(parser);
+      return;
+   }
+
+   result = json_path_match(path, json_parser_get_root(parser));
+   reader = json_reader_new(result);
+
+   json_reader_read_element(reader, 0);
+
+   temp = json_reader_get_double_value(reader);
+   snprintf(ftext, BUFSIZ, "direction is: %g°\n", temp);
+
+   gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
+
+   g_object_unref(reader);
+   json_node_unref(result);
+
+   *error = NULL;
+   json_path_compile(path, ".sys.sunrise", error);
+   if (*error) {
+      g_object_unref(parser);
+      return;
+   }
+
+   result = json_path_match(path, json_parser_get_root(parser));
+   reader = json_reader_new(result);
+
+   json_reader_read_element(reader, 0);
+
+   time = json_reader_get_int_value(reader);
+   snprintf(ftext, BUFSIZ, "Sunrise is: %s, ", ctime(&time));
+
+   gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
+
+   g_object_unref(reader);
+   json_node_unref(result);
+
+   *error = NULL;
+   json_path_compile(path, ".sys.sunset", error);
+   if (*error) {
+      g_object_unref(parser);
+      return;
+   }
+
+   result = json_path_match(path, json_parser_get_root(parser));
+   reader = json_reader_new(result);
+
+   json_reader_read_element(reader, 0);
+
+   time = json_reader_get_int_value(reader);
+   snprintf(ftext, BUFSIZ, "sunset is: %s\n", ctime(&time));
 
    gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
 
