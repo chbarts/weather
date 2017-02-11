@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+Server: openresty
+Date: Sat, 11 Feb 2017 03:53:27 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 453
+Connection: close
+X-Cache-Key: /data/2.5/weather?q=beach&units=imperial
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Methods: GET, POST
+

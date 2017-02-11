@@ -93,6 +93,46 @@ void handle_json(GInputStream *istream, GError **error)
    json_node_unref(result);
 
    *error = NULL;
+   json_path_compile(path, ".coord.lat", error);
+   if (*error) {
+      g_object_unref(parser);
+      return;
+   }
+
+   result = json_path_match(path, json_parser_get_root(parser));
+   reader = json_reader_new(result);
+
+   json_reader_read_element(reader, 0);
+
+   temp = json_reader_get_double_value(reader);
+   snprintf(ftext, BUFSIZ, " (%g°, ", temp);
+
+   gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
+
+   g_object_unref(reader);
+   json_node_unref(result);
+
+   *error = NULL;
+   json_path_compile(path, ".coord.lon", error);
+   if (*error) {
+      g_object_unref(parser);
+      return;
+   }
+
+   result = json_path_match(path, json_parser_get_root(parser));
+   reader = json_reader_new(result);
+
+   json_reader_read_element(reader, 0);
+
+   temp = json_reader_get_double_value(reader);
+   snprintf(ftext, BUFSIZ, " %g°) ", temp);
+
+   gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
+
+   g_object_unref(reader);
+   json_node_unref(result);
+   
+   *error = NULL;
    json_path_compile(path, ".main.temp", error);
    if (*error) {
       g_object_unref(parser);
