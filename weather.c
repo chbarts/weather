@@ -44,7 +44,7 @@ void handle_json(GInputStream *istream, GError **error)
 
    *error = NULL;
    path = json_path_new();
-   json_path_compile(path, "", error);
+   json_path_compile(path, ".cod", error);
    if (*error) {
       g_object_unref(parser);
       return;
@@ -62,10 +62,15 @@ void handle_json(GInputStream *istream, GError **error)
    g_object_unref(parser);
 }
 
+#define API_KEY "85a4e3c55b73909f42c6a23ec35b7147"
+/* #define URL "http://api.openweathermap.org/data/2.5/$api_cmd?q=$location&units=$units&appid=$api_key" */
+/* "http://api.openweathermap.org/data/2.5/weather?q=$location&units=imperial&appid=$api_key" */
+#define REQ "data/2.5/weather?q=%s&units=imperial&appid=%s"
+
 void on_button1_clicked(void)
 {
    int len, http_len;
-   char *txt, *ind, ftext[BUFSIZ], http_stuff[BUFSIZ], host[BUFSIZ];
+   char *txt, *ind, ftext[BUFSIZ], http_stuff[BUFSIZ], host[BUFSIZ], req[BUFSIZ];
    GError *error = NULL;
    GSocketConnection *connection;
    GSocketClient *client;
@@ -83,9 +88,9 @@ void on_button1_clicked(void)
       *ind = '\0';
    }
 
-   connection = g_socket_client_connect_to_host(client, txt, 80, NULL, &error);
+   connection = g_socket_client_connect_to_host(client, "api.openweathermap.org", 80, NULL, &error);
    if (error) {
-      snprintf(ftext, BUFSIZ, "error: couldn't open connection to %s: %s", txt, error->message);
+      snprintf(ftext, BUFSIZ, "error: couldn't open connection to api.openweathermap.org: %s", error->message);
       set_statusbar("error", ftext);
       g_error_free(error);
       g_object_unref(beheader);
@@ -99,7 +104,8 @@ void on_button1_clicked(void)
 
    cistream = g_converter_input_stream_new(istream, beheader);
 
-   http_len = snprintf(http_stuff, BUFSIZ, "GET / HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", host);
+   snprintf(req, BUFSIZ, REQ, txt, API_KEY);
+   http_len = snprintf(http_stuff, BUFSIZ, "GET /%s HTTP/1.1\r\nHost: api.openweathermap.org\r\nConnection: close\r\n\r\n", req);
    error = NULL;
    if ((len = g_output_stream_write(ostream, http_stuff, http_len, NULL, &error)) != http_len) {
       if (error) {
