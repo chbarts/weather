@@ -63,7 +63,7 @@ void handle_json(GInputStream *istream, GError **error)
 
    val = json_reader_get_int_value(reader);
 
-   snprintf(ftext, BUFSIZ, "%d\n", val);
+   snprintf(ftext, BUFSIZ, "Status: %d\n", val);
 
    gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
 
@@ -85,7 +85,6 @@ void handle_json(GInputStream *istream, GError **error)
    str = json_reader_get_string_value(reader);
 
    gtk_text_buffer_insert(buf, &iter, str, strlen(str));
-   gtk_text_buffer_insert(buf, &iter, " Temperature is: ", sizeof(" Temperature is: ")-1);
 
    g_object_unref(reader);
    json_node_unref(result);
@@ -103,8 +102,28 @@ void handle_json(GInputStream *istream, GError **error)
    json_reader_read_element(reader, 0);
 
    temp = json_reader_get_double_value(reader);
-   snprintf(ftext, BUFSIZ, "%g\n", temp);
+   snprintf(ftext, BUFSIZ, " temperature is: %g°F\n", temp);
 
+   gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
+
+   g_object_unref(reader);
+   json_node_unref(result);
+
+   *error = NULL;
+   json_path_compile(path, ".weather[].description", error);
+   if (*error) {
+      g_object_unref(parser);
+      return;
+   }
+
+   result = json_path_match(path, json_parser_get_root(parser));
+   reader = json_reader_new(result);
+
+   json_reader_read_element(reader, 0);
+
+   str = json_reader_get_string_value(reader);
+
+   snprintf(ftext, BUFSIZ, "Conditions are %s\n", str);
    gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
 
    g_object_unref(reader);
