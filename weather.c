@@ -165,7 +165,7 @@ void handle_json(GInputStream *istream, GError **error)
    json_reader_read_element(reader, 0);
 
    time = json_reader_get_int_value(reader);
-   snprintf(ftext, BUFSIZ, "Sunrise is: %s, ", ctime(&time));
+   snprintf(ftext, BUFSIZ, "Sunrise is: %s", ctime(&time));
 
    gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
 
@@ -185,7 +185,7 @@ void handle_json(GInputStream *istream, GError **error)
    json_reader_read_element(reader, 0);
 
    time = json_reader_get_int_value(reader);
-   snprintf(ftext, BUFSIZ, "sunset is: %s\n", ctime(&time));
+   snprintf(ftext, BUFSIZ, "Sunset is: %s", ctime(&time));
 
    gtk_text_buffer_insert(buf, &iter, ftext, strlen(ftext));
 
